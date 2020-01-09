@@ -1,5 +1,6 @@
-// @Author Lin Ya
-// @Email xxbbb@vip.qq.com
+
+
+
 #include "Thread.h"
 #include <assert.h>
 #include <errno.h>
@@ -27,7 +28,7 @@ pid_t gettid() { return static_cast<pid_t>(::syscall(SYS_gettid)); }
 
 void CurrentThread::cacheTid() {
   if (t_cachedTid == 0) {
-    t_cachedTid = gettid();
+    t_cachedTid = gettid();        //此处初始化tid   !!!
     t_tidStringLength =
         snprintf(t_tidString, sizeof t_tidString, "%5d ", t_cachedTid);
   }
@@ -36,7 +37,7 @@ void CurrentThread::cacheTid() {
 // 为了在线程中保留name,tid这些数据
 struct ThreadData {
   typedef Thread::ThreadFunc ThreadFunc;
-  ThreadFunc func_;
+  ThreadFunc func_;    //
   string name_;
   pid_t* tid_;
   CountDownLatch* latch_;
@@ -46,13 +47,13 @@ struct ThreadData {
       : func_(func), name_(name), tid_(tid), latch_(latch) {}
 
   void runInThread() {
-    *tid_ = CurrentThread::tid();
-    tid_ = NULL;
-    latch_->countDown();
+    *tid_ = CurrentThread::tid();    //此处函数初始化tid
+     tid_ = NULL;  //由于tid_只是为了start之后能得到正确的tid，故初始化tid之后不会再用到，则置为NULL
+    latch_->countDown(); //唤醒wait，使得start函数继续执行
     latch_ = NULL;
 
     CurrentThread::t_threadName = name_.empty() ? "Thread" : name_.c_str();
-    prctl(PR_SET_NAME, CurrentThread::t_threadName);
+    prctl(PR_SET_NAME, CurrentThread::t_threadName);  //第一个参数是操作类型，指定PR_SET_NAME，即设置进程名
 
     func_();
     CurrentThread::t_threadName = "finished";

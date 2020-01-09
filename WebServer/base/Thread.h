@@ -9,6 +9,10 @@
 #include <string>
 #include "CountDownLatch.h"
 #include "noncopyable.h"
+//该类对线程进行封装，并将接口放在currThread.h中
+
+//首先 Thread初始化时 初始化各类变量，如func_  name_ latch_    tid_(进程id) pthreadId_(线程id)
+
 
 class Thread : noncopyable {
  public:
